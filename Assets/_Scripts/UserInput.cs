@@ -6,8 +6,6 @@ public class UserInput : MonoBehaviour {
     public static UserInput Instance;
 
     private XRInput _xrInput;
-
-    [SerializeField] private JoystickInput joystickInput;
     
     public Vector2 leftJoystickInput { get; private set; }
     public Vector2 physicalJoystickInput { get; private set; }
@@ -34,11 +32,7 @@ public class UserInput : MonoBehaviour {
         _xrInput.LeftController.Joystick.canceled -= OnLeftJoystickValueChanged;
         _xrInput.LeftController.Disable();
     }
-
-    private void Update() {
-        physicalJoystickInput = joystickInput.GetInput();
-    }
-
+    
     private void OnLeftJoystickValueChanged(InputAction.CallbackContext ctx) {
         leftJoystickInput = ctx.ReadValue<Vector2>();
     }
