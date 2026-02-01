@@ -10,7 +10,7 @@ public class UserInput : MonoBehaviour {
     [SerializeField] private JoystickInput joystickInput;
     
     public Vector2 leftJoystickInput { get; private set; }
-    public Vector2 physicsJoystickInput { get; private set; }
+    public Vector2 physicalJoystickInput { get; private set; }
 
     private void Awake() {
         if (Instance == null) {
@@ -36,8 +36,7 @@ public class UserInput : MonoBehaviour {
     }
 
     private void Update() {
-        physicsJoystickInput = joystickInput.GetInput();
-        Debug.Log($"{physicsJoystickInput}");
+        physicalJoystickInput = joystickInput.GetInput();
     }
 
     private void OnLeftJoystickValueChanged(InputAction.CallbackContext ctx) {
