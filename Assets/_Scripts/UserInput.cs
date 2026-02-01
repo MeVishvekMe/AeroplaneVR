@@ -6,9 +6,11 @@ public class UserInput : MonoBehaviour {
     public static UserInput Instance;
 
     private XRInput _xrInput;
+
+    [SerializeField] private Lever _lever;
     
     public Vector2 leftJoystickInput { get; private set; }
-    public Vector2 physicalJoystickInput { get; private set; }
+    public float physicalJoystickYInput { get; private set; }
 
     private void Awake() {
         if (Instance == null) {
@@ -32,7 +34,11 @@ public class UserInput : MonoBehaviour {
         _xrInput.LeftController.Joystick.canceled -= OnLeftJoystickValueChanged;
         _xrInput.LeftController.Disable();
     }
-    
+
+    private void Update() {
+        physicalJoystickYInput = _lever.GetLeverValue();
+    }
+
     private void OnLeftJoystickValueChanged(InputAction.CallbackContext ctx) {
         leftJoystickInput = ctx.ReadValue<Vector2>();
     }

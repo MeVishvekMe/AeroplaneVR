@@ -1,47 +1,56 @@
 using UnityEngine;
 
-public class AirplaneController : MonoBehaviour {
+[RequireComponent(typeof(Rigidbody))]
+public class AirplaneController : MonoBehaviour
+{
     private Rigidbody rb;
-    
-    private float forwardForce = 25f;
-    private float pitchTorque = 8f;   // up/down
-    private float yawTorque = 6f;     // left/right
-    private float rollTorque = 10f;   // banking
-    private float rotationDamping = 2f;
+
+    private float speed = 20f;
+    private float pitchSpeed = 60f;
+    private float maxPitchAngle = 45f;
 
     private void Awake() {
         rb = GetComponent<Rigidbody>();
+
+        rb.useGravity = false;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
     }
 
     private void FixedUpdate() {
-        MoveForward();
-        // RotateAirplane();
-        // StabilizeRotation();
+        ApplyPitch();
+        ApplyVelocity();
     }
+    
+    private void ApplyPitch() {
+        float pitchInput = UserInput.Instance.physicalJoystickYInput;
 
-    private void MoveForward() {
-        rb.AddForce(transform.forward * forwardForce, ForceMode.Force);
-    }
+        if (Mathf.Abs(pitchInput) < 0.001f)
+            return;
 
-    private void RotateAirplane() {
-        Vector2 input = UserInput.Instance.physicalJoystickInput;
-        // input.x = roll / yaw
-        // input.y = pitch
-
-        Vector3 torque =
-            transform.right   * (-input.y * pitchTorque) +
-            transform.up      * ( input.x * yawTorque) +
-            transform.forward * (-input.x * rollTorque);
-
-        rb.AddTorque(torque, ForceMode.Force);
-    }
-
-    private void StabilizeRotation() {
-        // Prevent infinite spinning / wobble
-        rb.angularVelocity = Vector3.Lerp(
-            rb.angularVelocity,
-            Vector3.zero,
-            rotationDamping * Time.fixedDeltaTime
+        // Rotate around local X axis
+        transform.Rotate(
+            Vector3.right,
+            pitchInput * pitchSpeed * Time.fixedDeltaTime,
+            Space.Self
         );
+
+        ClampPitch();
+    }
+    
+    private void ClampPitch() {
+        Vector3 euler = transform.localEulerAngles;
+
+        float pitch = euler.x;
+        if (pitch > 180f)
+            pitch -= 360f;
+
+        pitch = Mathf.Clamp(pitch, -maxPitchAngle, maxPitchAngle);
+
+        transform.localEulerAngles = new Vector3(pitch, euler.y, euler.z);
+    }
+    
+    private void ApplyVelocity() {
+        rb.linearVelocity = transform.forward * speed;
     }
 }
